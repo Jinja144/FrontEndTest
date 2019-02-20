@@ -3,7 +3,10 @@
         <div class='container'>
             <form>
                 <label class='InputLabel'>Pick-up Location</label>
-                <input class='Input' type='text' placeholder='city, airport, station, region, district...' :list='autocompleteOptions'>
+                <input class='Input' type='text' placeholder='city, airport, station, region, district...' list='locationOptionData'>
+                <datalist id='locationOptionData' v-if='autocompleteOptions.length > 0'>
+                    <option v-for='location in autocompleteOptions' :key='location'>{{location}}</option>
+                </datalist>
             </form>
         </div>
     </div>
@@ -16,7 +19,7 @@
         data: function () {
             return {
                 connectionString: 'https://cors.io/?https://www.rentalcars.com/FTSAutocomplete.do',
-                autocompleteOptions: null,
+                autocompleteOptions: [],
                 requiredNumerOfResults: 6,
                 index : 'fts_en'
             }
@@ -36,16 +39,21 @@
                 const inputElement = document.getElementsByClassName('Input')[0];
                 let result;
                 if(inputElement.value.length > 1) {
-                    result = await axios.post(this.connectionString, {solrIndex: this.index, solrRows: this.requiredResults, solrTerm: inputElement.vale});
-                    //unable to get a response, keep getting an error for the response blocked by CORS policy: 
-                    //Response to preflight request doesn't pass access control check: 
-                    //No 'Access-Control-Allow-Origin' header is present on the requested resource.
-                }
-                if(result) {
-                    this.autocompleteOptions = result;
-                }
-                else {
-                    this.autocompleteOptions = ['No results found'];
+                    try {
+                        result = await axios.post(this.connectionString, {solrIndex: this.index, solrRows: this.requiredResults, solrTerm: inputElement.vale});
+                        //unable to get a response, keep getting an error for the response blocked by CORS policy: 
+                        //Response to preflight request doesn't pass access control check: 
+                        //No 'Access-Control-Allow-Origin' header is present on the requested resource.
+                    }
+                    catch(error) {
+                        console.error(error)
+                    }
+                    if(result && result.data) {
+                        this.autocompleteOptions = result.data;
+                    }
+                    else {
+                        this.autocompleteOptions = ['No results found'];
+                    }
                 }
             }
         },
