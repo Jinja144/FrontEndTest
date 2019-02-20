@@ -15,9 +15,10 @@
         name: 'app',
         data: function () {
             return {
-                connectionString: 'https://cors.io/?https://www.rentalcars.com/FTSAutocomplete.do?solrIndex=fts_en',
+                connectionString: 'https://cors.io/?https://www.rentalcars.com/FTSAutocomplete.do',
                 autocompleteOptions: null,
                 requiredNumerOfResults: 6,
+                index : 'fts_en'
             }
         },
         mounted() {
@@ -35,7 +36,7 @@
                 const inputElement = document.getElementsByClassName('Input')[0];
                 let result;
                 if(inputElement.value.length > 1) {
-                    result = await axios.post(this.connectionString, {solrRows: this.requiredResults, solrTerm: inputElement.vale});
+                    result = await axios.post(this.connectionString, {solrIndex: this.index, solrRows: this.requiredResults, solrTerm: inputElement.vale});
                     //unable to get a response, keep getting an error for the response blocked by CORS policy: 
                     //Response to preflight request doesn't pass access control check: 
                     //No 'Access-Control-Allow-Origin' header is present on the requested resource.
